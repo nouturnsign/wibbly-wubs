@@ -1,0 +1,19 @@
+{
+  "name": "wibbly-wubs",
+  "version": "1.0.0",
+  "description": "Music visualizer.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nouturnsign/wibbly-wubs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nouturnsign/wibbly-wubs/issues"
+  },
+  "homepage": "https://github.com/nouturnsign/wibbly-wubs#readme"
+}
