@@ -52,6 +52,12 @@ animate();
 //NOTE: If we instead use an orthographic camera, the bars can be uniformly spaced
 import * as THREE from 'three';
 
+// Load Google Fonts
+const link = document.createElement('link');
+link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap';
+link.rel = 'stylesheet';
+document.head.appendChild(link);
+
 const scene = new THREE.Scene();
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -101,3 +107,95 @@ function animate() {
 }
 
 animate();
+
+/*
+// Create the settings bar
+const settingsBar = document.createElement('div');
+settingsBar.style.position = 'absolute';
+settingsBar.style.top = '10px';
+settingsBar.style.right = '10px';
+settingsBar.style.padding = '20px';
+settingsBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
+settingsBar.style.border = '1px solid #444';
+settingsBar.style.borderRadius = '10px';
+settingsBar.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+settingsBar.style.color = '#fff';
+settingsBar.style.fontFamily = "'Roboto', sans-serif";
+settingsBar.innerHTML = `
+  <h2 style="margin-top: 0; font-size: 1.5em;">Color</h2>
+  <label for="red">Red: </label>
+  <input type="range" id="red" name="red" min="0" max="255" value="0"><br><br>
+  <label for="green">Green: </label>
+  <input type="range" id="green" name="green" min="0" max="255" value="255"><br><br>
+  <label for="blue">Blue: </label>
+  <input type="range" id="blue" name="blue" min="0" max="255" value="0"><br><br>
+`;
+document.body.appendChild(settingsBar);
+
+// Update bar colors based on RGB sliders
+function updateBarColors() {
+  const red = document.getElementById('red').value;
+  const green = document.getElementById('green').value;
+  const blue = document.getElementById('blue').value;
+  const color = new THREE.Color(`rgb(${red}, ${green}, ${blue})`);
+
+  bars.forEach(bar => {
+    bar.material.color.set(color);
+  });
+}
+
+document.getElementById('red').addEventListener('input', updateBarColors);
+document.getElementById('green').addEventListener('input', updateBarColors);
+document.getElementById('blue').addEventListener('input', updateBarColors);
+*/
+
+// Create the settings bar
+const settingsBar = document.createElement('div');
+settingsBar.style.position = 'absolute';
+settingsBar.style.top = '10px';
+settingsBar.style.right = '10px';
+settingsBar.style.padding = '20px';
+settingsBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
+settingsBar.style.border = '1px solid #444';
+settingsBar.style.borderRadius = '10px';
+settingsBar.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
+settingsBar.style.color = '#fff';
+settingsBar.style.fontFamily = "'Poppins', sans-serif";
+settingsBar.innerHTML = `
+  <h2 style="margin-top: 0; font-size: 1.5em;">Settings Bar</h2>
+  <label for="modeToggle" style="font-size: 1.2em;">Mode:</label><br>
+  <button id="barMode" style="margin: 10px 0; padding: 5px 10px; font-size: 1em;">Bar</button>
+  <button id="particleMode" style="margin: 10px 0; padding: 5px 10px; font-size: 1em;">Particle</button><br><br>
+  <label for="red">Red: </label>
+  <input type="range" id="red" name="red" min="0" max="255" value="0"><br><br>
+  <label for="green">Green: </label>
+  <input type="range" id="green" name="green" min="0" max="255" value="255"><br><br>
+  <label for="blue">Blue: </label>
+  <input type="range" id="blue" name="blue" min="0" max="255" value="0"><br><br>
+`;
+
+document.body.appendChild(settingsBar);
+
+// Update bar colors based on RGB sliders
+function updateBarColors() {
+  const red = document.getElementById('red').value;
+  const green = document.getElementById('green').value;
+  const blue = document.getElementById('blue').value;
+  const color = new THREE.Color(`rgb(${red}, ${green}, ${blue})`);
+
+  bars.forEach(bar => {
+    bar.material.color.set(color);
+  });
+}
+document.getElementById('red').addEventListener('input', updateBarColors);
+document.getElementById('green').addEventListener('input', updateBarColors);
+document.getElementById('blue').addEventListener('input', updateBarColors);
+
+// Placeholder buttons for switching modes
+// Since the second mode hasn't yet been developed, this is still a WIP
+document.getElementById('barMode').addEventListener('click', () => {
+  alert("Switch to bar graph music visualizer");
+});
+document.getElementById('particleMode').addEventListener('click', () => {
+  alert("Switch to particle-like music visualizer with more interesting patterns");
+});
