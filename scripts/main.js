@@ -50,12 +50,15 @@ animate();
 */
 
 //NOTE: If we instead use an orthographic camera, the bars can be uniformly spaced
-import * as THREE from 'three';
+import * as THREE from "three";
+import uniforms from "./uniforms";
+import psychedelicMaterial from "./psychedelic";
 
 // Load Google Fonts
-const link = document.createElement('link');
-link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap';
-link.rel = 'stylesheet';
+const link = document.createElement("link");
+link.href =
+  "https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap";
+link.rel = "stylesheet";
 document.head.appendChild(link);
 
 const scene = new THREE.Scene();
@@ -66,12 +69,12 @@ document.body.appendChild(renderer.domElement);
 const aspect = window.innerWidth / window.innerHeight;
 const frustumSize = 50;
 const camera = new THREE.OrthographicCamera(
-  frustumSize * aspect / -2,
-  frustumSize * aspect / 2,
+  (frustumSize * aspect) / -2,
+  (frustumSize * aspect) / 2,
   frustumSize / 2,
   frustumSize / -2,
   1,
-  1000
+  1000,
 );
 camera.position.z = 40;
 
@@ -94,15 +97,32 @@ for (let i = 0; i < barCount; i++) {
   // Position the bars
   bar.position.x = startX + i * (barWidth + spacing);
   bar.position.y = -10; // -10 pushes the bars down to make space for the settings bar
-  
+
   // Add the bars to the scene
   scene.add(bar);
   bars.push(bar);
 }
 
+// Update meshes to toggle psychedelic mode
+let isPsychedelic = false;
+function togglePsychedelicMode() {
+  if (!isPsychedelic) {
+    for (let i = 0; i < barCount; i++) {
+      bars[i].material = psychedelicMaterial;
+    }
+  } else {
+    for (let i = 0; i < barCount; i++) {
+      bars[i].material = new THREE.MeshBasicMaterial();
+    }
+    updateBarColors();
+  }
+  isPsychedelic = !isPsychedelic;
+}
+
 // Render loop
 function animate() {
   requestAnimationFrame(animate);
+  uniforms.time.value += 0.05;
   renderer.render(scene, camera);
 }
 
@@ -150,16 +170,16 @@ document.getElementById('blue').addEventListener('input', updateBarColors);
 */
 
 // Create the settings bar
-const settingsBar = document.createElement('div');
-settingsBar.style.position = 'absolute';
-settingsBar.style.top = '10px';
-settingsBar.style.right = '10px';
-settingsBar.style.padding = '20px';
-settingsBar.style.backgroundColor = 'rgba(30, 30, 30, 0.8)';
-settingsBar.style.border = '1px solid #444';
-settingsBar.style.borderRadius = '10px';
-settingsBar.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.3)';
-settingsBar.style.color = '#fff';
+const settingsBar = document.createElement("div");
+settingsBar.style.position = "absolute";
+settingsBar.style.top = "10px";
+settingsBar.style.right = "10px";
+settingsBar.style.padding = "20px";
+settingsBar.style.backgroundColor = "rgba(30, 30, 30, 0.8)";
+settingsBar.style.border = "1px solid #444";
+settingsBar.style.borderRadius = "10px";
+settingsBar.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.3)";
+settingsBar.style.color = "#fff";
 settingsBar.style.fontFamily = "'Poppins', sans-serif";
 settingsBar.innerHTML = `
   <h2 style="margin-top: 0; font-size: 1.5em;">Settings Bar</h2>
@@ -172,30 +192,38 @@ settingsBar.innerHTML = `
   <input type="range" id="green" name="green" min="0" max="255" value="255"><br><br>
   <label for="blue">Blue: </label>
   <input type="range" id="blue" name="blue" min="0" max="255" value="0"><br><br>
+  <label for="psychedelic">Psychedelic: </label>
+  <input type="checkbox" id="psychedelic" name="psychedelic">
 `;
 
 document.body.appendChild(settingsBar);
 
 // Update bar colors based on RGB sliders
 function updateBarColors() {
-  const red = document.getElementById('red').value;
-  const green = document.getElementById('green').value;
-  const blue = document.getElementById('blue').value;
+  const red = document.getElementById("red").value;
+  const green = document.getElementById("green").value;
+  const blue = document.getElementById("blue").value;
   const color = new THREE.Color(`rgb(${red}, ${green}, ${blue})`);
 
-  bars.forEach(bar => {
+  bars.forEach((bar) => {
     bar.material.color.set(color);
   });
 }
-document.getElementById('red').addEventListener('input', updateBarColors);
-document.getElementById('green').addEventListener('input', updateBarColors);
-document.getElementById('blue').addEventListener('input', updateBarColors);
+document.getElementById("red").addEventListener("input", updateBarColors);
+document.getElementById("green").addEventListener("input", updateBarColors);
+document.getElementById("blue").addEventListener("input", updateBarColors);
 
 // Placeholder buttons for switching modes
 // Since the second mode hasn't yet been developed, this is still a WIP
-document.getElementById('barMode').addEventListener('click', () => {
+document.getElementById("barMode").addEventListener("click", () => {
   alert("Switch to bar graph music visualizer");
 });
-document.getElementById('particleMode').addEventListener('click', () => {
-  alert("Switch to particle-like music visualizer with more interesting patterns");
+document.getElementById("particleMode").addEventListener("click", () => {
+  alert(
+    "Switch to particle-like music visualizer with more interesting patterns",
+  );
 });
+
+document
+  .getElementById("psychedelic")
+  .addEventListener("input", togglePsychedelicMode);
