@@ -1,8 +1,10 @@
 const audioSrcSelect = document.getElementById("audio-source-select");
 const audioFile = document.getElementById("audio-source-file");
-const options = document.getElementById("options");
+const audioBr1 = document.getElementById("abr1");
+const audioBr2 = document.getElementById("abr2");
+const settings = document.getElementById("settings");
 
-const FFT_SIZE = 128; // must be power of 2
+const FFT_SIZE = 64; // must be power of 2
 
 let context;
 let audio;
@@ -21,6 +23,8 @@ audioSrcSelect.addEventListener("change", function () {
   playbackAudio = true;
 
   audioFile.setAttribute("hidden", true);
+  audioBr1.setAttribute("hidden", true);
+  audioBr2.setAttribute("hidden", true);
 
   if (audio) {
     audio.remove();
@@ -49,11 +53,13 @@ audioSrcSelect.addEventListener("change", function () {
       break;
     case "file":
       audioFile.removeAttribute("hidden");
+      audioBr1.removeAttribute("hidden");
+      audioBr2.removeAttribute("hidden");
 
       audio = document.createElement("audio");
       audio.setAttribute("controls", "");
       audio.setAttribute("autoplay", "");
-      options.appendChild(audio);
+      settings.appendChild(audio);
 
       break;
     case "temp":
@@ -63,7 +69,7 @@ audioSrcSelect.addEventListener("change", function () {
       audio.src =
         "https://s3-us-west-2.amazonaws.com/s.cdpn.io/858/outfoxing.mp3";
       audio.crossOrigin = "anonymous";
-      options.appendChild(audio);
+      settings.appendChild(audio);
 
       source = context.createMediaElementSource(audio);
       createAnalyser();
