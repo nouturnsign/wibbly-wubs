@@ -78,6 +78,8 @@ animate();
 
 //NOTE: If we instead use an orthographic camera, the bars can be uniformly spaced
 import * as THREE from "three";
+import uniforms from "./uniforms";
+import psychedelicMaterial from "./psychedelic";
 import { getFreqData, getTimeData } from "./sound";
 
 // Load Google Fonts
@@ -101,12 +103,15 @@ const frustumSize = 50;
 const camera = new THREE.OrthographicCamera(
   (frustumSize * aspect) / -2,
   (frustumSize * aspect) / 2,
+  (frustumSize * aspect) / -2,
+  (frustumSize * aspect) / 2,
   frustumSize / 2,
   frustumSize / -2,
   1,
   1000,
+  1000,
 );
-camera.position.z = 40;
+camera.position.y = -20;
 
 // Create an array of 32 bars
 const barCount = 32;
@@ -135,6 +140,22 @@ for (let i = 0; i < barCount; i++) {
   bars.push(bar);
 }
 
+// Update meshes to toggle psychedelic mode
+let isPsychedelic = false;
+function togglePsychedelicMode() {
+  if (!isPsychedelic) {
+    for (let i = 0; i < barCount; i++) {
+      bars[i].material = psychedelicMaterial;
+    }
+  } else {
+    for (let i = 0; i < barCount; i++) {
+      bars[i].material = new THREE.MeshBasicMaterial();
+    }
+    updateBarColors();
+  }
+  isPsychedelic = !isPsychedelic;
+}
+
 // Render loop
 function animate() {
   requestAnimationFrame(animate);
@@ -149,6 +170,7 @@ function animate() {
     }
   }
 
+  uniforms.time.value += 0.05;
   renderer.render(scene, camera);
 }
 
@@ -179,3 +201,7 @@ document.getElementById("particleMode").addEventListener("click", () => {
     "Switch to particle-like music visualizer with more interesting patterns",
   );
 });
+
+document
+  .getElementById("psychedelic")
+  .addEventListener("input", togglePsychedelicMode);
