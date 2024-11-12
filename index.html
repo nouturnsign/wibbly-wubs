@@ -2,14 +2,55 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Assignment3</title>
-    <style>
-      body {
-        margin: 0;
-      }
-    </style>
+    <title>Wibbly Wubs</title>
+    <link rel="stylesheet" href="/style/main.css" />
   </head>
   <body>
     <script type="module" src="/scripts/main.js"></script>
+
+    <div id="settings">
+      <h2 style="margin-top: 0; font-size: 1.5em">Settings Bar</h2>
+      <label for="audio-source-select" style="font-size: 1.2em"
+        >Audio input source</label
+      ><br />
+      <select id="audio-source-select">
+        <option value="none">None</option>
+        <option value="mic">Microphone</option>
+        <option value="file">File</option>
+        <option value="temp">Example file</option></select
+      ><br /><br />
+      <input hidden type="file" id="audio-source-file" accept="audio/*" />
+      <br hidden id="abr1" /><br hidden id="abr2" />
+      <label for="modeToggle" style="font-size: 1.2em">Mode:</label><br />
+      <button id="barMode">Bar</button>
+      <button id="particleMode">Particle</button><br /><br />
+      <label for="red">Red: </label>
+      <input
+        type="range"
+        id="red"
+        name="red"
+        min="0"
+        max="255"
+        value="0"
+      /><br /><br />
+      <label for="green">Green: </label>
+      <input
+        type="range"
+        id="green"
+        name="green"
+        min="0"
+        max="255"
+        value="255"
+      /><br /><br />
+      <label for="blue">Blue: </label>
+      <input
+        type="range"
+        id="blue"
+        name="blue"
+        min="0"
+        max="255"
+        value="0"
+      /><br /><br />
+    </div>
   </body>
 </html>
