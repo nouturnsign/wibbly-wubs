@@ -103,15 +103,12 @@ const frustumSize = 50;
 const camera = new THREE.OrthographicCamera(
   (frustumSize * aspect) / -2,
   (frustumSize * aspect) / 2,
-  (frustumSize * aspect) / -2,
-  (frustumSize * aspect) / 2,
   frustumSize / 2,
   frustumSize / -2,
   1,
   1000,
-  1000,
 );
-camera.position.y = -20;
+camera.position.z = 40;
 
 // Create an array of 32 bars
 const barCount = 32;
