@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Assignment3</title>
+    <title>Wibbly Wubs</title>
     <style>
       body {
         margin: 0;
@@ -11,5 +11,27 @@
   </head>
   <body>
     <script type="module" src="/scripts/main.js"></script>
+
+    <div id="options">
+      <!-- audio options -->
+      <label for="audio-source-select">Audio input source: </label>
+      <select id="audio-source-select">
+        <option value="none">None</option>
+        <option value="temp">incomptech lolll</option>
+        "
+        <option value="mic">Microphone</option>
+        <option value="file">File</option>
+      </select>
+      <input hidden type="file" id="audio-source-file" accept="audio/*" />
+    </div>
+
+    <p
+      style="font-family: &quot;Courier New&quot;, Courier, monospace"
+      id="freq"
+    ></p>
+    <pre
+      style="font-family: &quot;Courier New&quot;, Courier, monospace"
+      id="time"
+    ></pre>
   </body>
 </html>
