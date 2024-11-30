@@ -156,23 +156,26 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
-camera.position.set(0, 10, 30); // Adjust camera position
+camera.position.set(0, 35, 0); // Position the camera above the circle of 3D bars
 camera.lookAt(0, 0, 0);
 
 // Add OrbitControls to increase user interaction
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.enableDamping = true; // Enable damping (inertia) for smoother interaction
-controls.dampingFactor = 0.05; // Damping factor
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
 
 // Create an array of 32 bars
 const barCount = 32;
-const barWidth = 1.4; // Width
-const barHeight = 20; // Initial height (Update to vary dynamically based off of audio input)
-const barDepth = 1.4; // Depth
-const spacing = 0.4; // Small spacing between bars (so they don't overlap); switched from 0.2 to 0.4
+const barWidth = 1.5; // Width
+const barHeight = 15; // Initial height (Update to vary dynamically based off of audio input)
+const barDepth = 1.5; // Depth
+const spacing = 0.5; // Spacing in between bars (so they dont overlap)
+
+const totalWidth = barCount * (barWidth + spacing);
+const radius = totalWidth / (2 * Math.PI);
 
 const bars = [];
-const startX = -(barCount * (barWidth + spacing) - spacing) / 2; // Calculate the starting x position for the first bar
+const edges = [];
 
 for (let i = 0; i < barCount; i++) {
   // Create the bar geometry and material
@@ -181,13 +184,29 @@ for (let i = 0; i < barCount; i++) {
   const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
   const bar = new THREE.Mesh(geometry, material);
 
-  // Position the bars
-  bar.position.x = startX + i * (barWidth + spacing);
-  bar.position.y = -20;
+  // Create edges for the bar
+  const edge = new THREE.EdgesGeometry(geometry);
+  const lineMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+  const line = new THREE.LineSegments(edge, lineMaterial);
 
-  // Add the bars to the scene
+  // Position the bars in a circle
+  const angle = (i / barCount) * Math.PI * 2;
+  bar.position.x = Math.cos(angle) * radius;
+  bar.position.z = Math.sin(angle) * radius;
+  bar.position.y = 0;
+  
+  // Rotate the bars to face outward
+  bar.rotation.y = -angle;
+
+  // Position the edges to be on the bars
+  line.position.copy(bar.position);
+  line.rotation.copy(bar.rotation);
+
+  // Add the bars and edges to the scene
   scene.add(bar);
+  scene.add(line);
   bars.push(bar);
+  edges.push(line);
 }
 
 // Update meshes to toggle psychedelic mode
@@ -215,6 +234,7 @@ function animate() {
     for (let i = 0; i < bars.length; ++i) {
       const scale = freq[i] / 255;
       bars[i].scale.set(1, scale, 1);
+      edges[i].scale.set(1, scale, 1);
     }
   }
 
