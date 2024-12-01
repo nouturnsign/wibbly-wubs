@@ -177,12 +177,39 @@ const radius = totalWidth / (2 * Math.PI);
 const bars = [];
 const edges = [];
 
+// Create point light
+const pointLight = new THREE.PointLight(0xffffff, 1, 100);
+pointLight.position.set(0, 0.5, 0);
+scene.add(pointLight);
+
+// Create ambient light
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
+
+// Load the turntable texture
+const textureLoader = new THREE.TextureLoader();
+const platformTexture = textureLoader.load("./TransparentCropped.png");
+
+// Create the platform geometry and material
+const platformSize = radius * 4;
+const platformHeight = 1;
+const platformGeometry = new THREE.BoxGeometry(platformSize, platformHeight, platformSize);
+const platformMaterial = new THREE.MeshPhongMaterial({
+  map: platformTexture,
+  color: 0x888888, // Gray color for the platform
+});
+
+const platform = new THREE.Mesh(platformGeometry, platformMaterial);
+platform.position.y = -0.51; // A little below -0.5 to avoid platform/bar overlap
+platform.position.x = 4; // Center the circle on the turntable disk
+// Add the platform to the scene
+scene.add(platform);
+
 for (let i = 0; i < barCount; i++) {
   // Create the bar geometry and material
   const geometry = new THREE.BoxGeometry(barWidth, barHeight, barDepth);
   geometry.translate(0, barHeight / 2, 0);
-
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
   const bar = new THREE.Mesh(geometry, material);
 
   // Create edges for the bar
@@ -219,7 +246,10 @@ function togglePsychedelicMode() {
     }
   } else {
     for (let i = 0; i < barCount; i++) {
-      bars[i].material = new THREE.MeshBasicMaterial();
+      bars[i].material = new THREE.MeshPhongMaterial({
+        color: 0x00ff00,
+        shininess: 100,
+      });
     }
     updateBarColors();
   }
