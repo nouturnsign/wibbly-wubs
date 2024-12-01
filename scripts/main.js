@@ -256,6 +256,35 @@ function togglePsychedelicMode() {
   isPsychedelic = !isPsychedelic;
 }
 
+// Handle texture input
+function handleTextureInput(event) {
+  const file = event.target.files[0];
+
+  if (!file) {
+    updateBarColors();
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const dataURL = e.target.result;
+    const texture = new THREE.TextureLoader().load(dataURL, () => {
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(1, barHeight/barWidth); // One small problem -- the top and bottom faces on each bar aren't done right
+      texture.magFilter = THREE.NearestFilter;
+      texture.minFilter = THREE.NearestFilter;
+
+      bars.forEach((bar) => {
+        bar.material = new THREE.MeshBasicMaterial({ map: texture, color: 0xffffff, transparent: true });
+        bar.material.needsUpdate = true;
+      });
+    });
+  };
+
+  reader.readAsDataURL(file);
+} 
+
 // Render loop
 function animate() {
   requestAnimationFrame(animate);
@@ -285,7 +314,9 @@ function updateBarColors() {
   const color = new THREE.Color(`rgb(${red}, ${green}, ${blue})`);
 
   bars.forEach((bar) => {
+    bar.material.map = null; // Remove the texture
     bar.material.color.set(color);
+    bar.material.needsUpdate = true;
   });
 }
 document.getElementById("red").addEventListener("input", updateBarColors);
@@ -306,3 +337,7 @@ document.getElementById("particleMode").addEventListener("click", () => {
 document
   .getElementById("psychedelic")
   .addEventListener("input", togglePsychedelicMode);
+
+document
+  .getElementById("textureInput")
+  .addEventListener("change", handleTextureInput);
