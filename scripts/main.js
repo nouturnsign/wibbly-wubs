@@ -15,20 +15,55 @@ document
   .addEventListener("input", bars.updateBarColors);
 document.getElementById("blue").addEventListener("input", bars.updateBarColors);
 
-// list of IDs of options for each mode to use below
+let curMode = "bar";
+let curModeDiv = document.getElementById("barSettings");
+let curModeButton = document.getElementById("barMode");
 
 // Placeholder buttons for switching modes
 // Since the second mode hasn't yet been developed, this is still a WIP
 document.getElementById("barMode").addEventListener("click", () => {
-  alert("Switch to bar graph music visualizer");
-  // show all bar mode options
-  // hide all other options
+  switchModes(curMode, "bar");
 });
+
 document.getElementById("particleMode").addEventListener("click", () => {
-  alert(
-    "Switch to particle-like music visualizer with more interesting patterns",
-  );
+  switchModes(curMode, "particle");
 });
+
+function switchModes(from, to) {
+  if (from === to) return false;
+
+  curModeDiv.setAttribute("hidden", true);
+  curModeButton.removeAttribute("disabled");
+
+  switch (from) {
+    case "bar":
+      bars.destroyBarsScene();
+
+      break;
+    case "particle":
+      break;
+    default:
+      console.error("unknown mode switching from: ", from);
+  }
+
+  curModeDiv = document.getElementById(to + "Settings");
+  curModeDiv.removeAttribute("hidden");
+  curModeButton = document.getElementById(to + "Mode");
+  curModeButton.setAttribute("disabled", true);
+
+  curMode = to;
+
+  switch (to) {
+    case "bar":
+      bars.createBarsScene();
+
+      break;
+    case "particle":
+      break;
+    default:
+      console.error("unknown mode switching to: ", to);
+  }
+}
 
 document
   .getElementById("psychedelic")

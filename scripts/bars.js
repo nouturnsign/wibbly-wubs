@@ -6,6 +6,7 @@ import { getFreqData, getTimeData } from "./sound";
 
 let scene;
 let renderer;
+let animationReq;
 
 let bars;
 let edges;
@@ -116,7 +117,7 @@ function createBarsScene() {
 
   // Render loop
   function animate() {
-    requestAnimationFrame(animate);
+    animationReq = requestAnimationFrame(animate);
 
     const freq = getFreqData();
     if (freq) {
@@ -136,7 +137,17 @@ function createBarsScene() {
   animate();
 }
 
-function destroyBarsScene() {}
+function destroyBarsScene() {
+  if (animationReq) cancelAnimationFrame(animationReq);
+  renderer.domElement.remove();
+
+  scene = undefined;
+  renderer = undefined;
+  animationReq = undefined;
+
+  bars = undefined;
+  edges = undefined;
+}
 
 // Update meshes to toggle psychedelic mode
 function togglePsychedelicMode() {

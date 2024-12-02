@@ -22,39 +22,48 @@
       <input hidden type="file" id="audio-source-file" accept="audio/*" />
       <br hidden id="abr1" /><br hidden id="abr2" />
       <label for="modeToggle" style="font-size: 1em">Mode:</label><br />
-      <button id="barMode">Bar</button>
+      <button disabled id="barMode">Bar</button>
       <button id="particleMode">Particle</button><br /><br />
-      <label for="red">Red: </label>
-      <input
-        type="range"
-        id="red"
-        name="red"
-        min="0"
-        max="255"
-        value="0"
-      /><br /><br />
-      <label for="green">Green: </label>
-      <input
-        type="range"
-        id="green"
-        name="green"
-        min="0"
-        max="255"
-        value="255"
-      /><br /><br />
-      <label for="blue">Blue: </label>
-      <input
-        type="range"
-        id="blue"
-        name="blue"
-        min="0"
-        max="255"
-        value="0"
-      /><br /><br />
-      <label for="psychedelic">Psychedelic: </label>
-      <input type="checkbox" id="psychedelic" name="psychedelic" /><br /><br />
-      <label for="textureInput" style="font-size: 1em">Texture Input</label><br />
-      <input type="file" id="textureInput" accept="image/*" /><br /><br />
+      <div id="barSettings">
+        <label for="red">Red: </label>
+        <input
+          type="range"
+          id="red"
+          name="red"
+          min="0"
+          max="255"
+          value="0"
+        /><br /><br />
+        <label for="green">Green: </label>
+        <input
+          type="range"
+          id="green"
+          name="green"
+          min="0"
+          max="255"
+          value="255"
+        /><br /><br />
+        <label for="blue">Blue: </label>
+        <input
+          type="range"
+          id="blue"
+          name="blue"
+          min="0"
+          max="255"
+          value="0"
+        /><br /><br />
+        <label for="psychedelic">Psychedelic: </label>
+        <input
+          type="checkbox"
+          id="psychedelic"
+          name="psychedelic"
+        /><br /><br />
+        <label for="textureInput" style="font-size: 1em">Texture Input</label
+        ><br />
+        <input type="file" id="textureInput" accept="image/*" />
+      </div>
+      <div id="particleSettings"></div>
+      <br /><br />
     </div>
   </body>
 </html>
