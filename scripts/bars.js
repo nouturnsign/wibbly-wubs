@@ -51,14 +51,40 @@ function createBarsScene() {
   bars = [];
   edges = [];
 
-  // Create point light
-  const pointLight = new THREE.PointLight(0xffffff, 1, 100);
-  pointLight.position.set(0, 0.5, 0);
-  scene.add(pointLight);
-
   // Create ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.1); // Modify this to make shadows/light more pronounced
   scene.add(ambientLight);
+
+  // Create four spotlights
+  const spotlight1 = new THREE.SpotLight(0xffffff, 100);
+  spotlight1.position.set(8, 25, 8);
+  spotlight1.lookAt(0, 0, 0);
+  spotlight1.castShadow = true;
+  scene.add(spotlight1);
+  
+  const spotlight2 = new THREE.SpotLight(0xffffff, 100);
+  spotlight2.position.set(-8, 25, -8);
+  spotlight2.lookAt(0, 0, 0);
+  spotlight2.castShadow = true;
+  scene.add(spotlight2);
+
+  const spotlight3 = new THREE.SpotLight(0xffffff, 100);
+  spotlight3.position.set(8, 25, -8);
+  spotlight3.lookAt(0, 0, 0);
+  spotlight3.castShadow = true;
+  scene.add(spotlight3);
+
+  const spotlight4 = new THREE.SpotLight(0xffffff, 100);
+  spotlight4.position.set(-8, 25, 8);
+  spotlight4.lookAt(0, 0, 0);
+  spotlight4.castShadow = true;
+  scene.add(spotlight4);
+
+  // If you want to visualize a single spotlight, uncomment this part of the code
+  /*
+  const spotlightHelper1 = new THREE.SpotLightHelper(spotlight1);
+  scene.add(spotlightHelper1);
+  */
 
   // Load the turntable texture
   const textureLoader = new THREE.TextureLoader();
@@ -167,40 +193,6 @@ function togglePsychedelicMode() {
   isPsychedelic = !isPsychedelic;
 }
 
-// Handle texture input
-function handleTextureInput(event) {
-  const file = event.target.files[0];
-
-  if (!file) {
-    updateBarColors();
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const dataURL = e.target.result;
-    const texture = new THREE.TextureLoader().load(dataURL, () => {
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      // One small problem -- the top and bottom faces on each bar aren't done right
-      texture.repeat.set(1, barHeight / barWidth);
-      texture.magFilter = THREE.NearestFilter;
-      texture.minFilter = THREE.NearestFilter;
-
-      bars.forEach((bar) => {
-        bar.material = new THREE.MeshBasicMaterial({
-          map: texture,
-          color: 0xffffff,
-          transparent: true,
-        });
-        bar.material.needsUpdate = true;
-      });
-    });
-  };
-
-  reader.readAsDataURL(file);
-}
-
 // Update bar colors based on RGB sliders
 function updateBarColors() {
   const red = document.getElementById("red").value;
@@ -209,9 +201,7 @@ function updateBarColors() {
   const color = new THREE.Color(`rgb(${red}, ${green}, ${blue})`);
 
   bars.forEach((bar) => {
-    bar.material.map = null; // Remove the texture
     bar.material.color.set(color);
-    bar.material.needsUpdate = true;
   });
 }
 
@@ -219,6 +209,5 @@ export {
   createBarsScene,
   destroyBarsScene,
   togglePsychedelicMode,
-  handleTextureInput,
   updateBarColors,
 };
