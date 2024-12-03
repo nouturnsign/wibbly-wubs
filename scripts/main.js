@@ -68,7 +68,3 @@ function switchModes(from, to) {
 document
   .getElementById("psychedelic")
   .addEventListener("input", bars.togglePsychedelicMode);
-
-document
-  .getElementById("textureInput")
-  .addEventListener("change", bars.handleTextureInput);
