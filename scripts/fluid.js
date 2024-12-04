@@ -6,8 +6,24 @@ let scene, camera, renderer, animationReq, waterMesh;
 const gridSize = 128; // Number of grid points along one axis
 const containerRadius = 35; // Radius of the container
 const cellSize = (containerRadius * 2) / gridSize; // Size of each grid cell
-const damping = 0.99; // Damping factor for wave energy dissipation
-const impulseStrength = 1.5; // Magnitude of sound-driven impulses
+
+// Settings
+
+let impulseStrength = 1.2; // Magnitude of sound-driven impulses
+document.getElementById("impulseStrength").addEventListener("input", (e) => {
+  impulseStrength = parseFloat(e.target.value);
+});
+
+let damping = 1.001; // Damping factor for wave energy dissipation
+document.getElementById("damping").addEventListener("input", (e) => {
+  damping = parseFloat(e.target.value);
+});
+
+let emissiveIntensity = 0.3;
+document.getElementById("emissiveIntensity").addEventListener("input", (e) => {
+  const intensity = parseFloat(e.target.value);
+  waterMesh.material.emissiveIntensity = intensity;
+});
 
 // Heightfield data
 let heights = [];
@@ -34,7 +50,7 @@ function createWaterMesh() {
     roughness: 0.3, // Adjust for better reflections
     metalness: 0.6, // Slight metallic effect for realistic highlights
     emissive: new THREE.Color(0x003366), // Subtle glow in darker areas
-    emissiveIntensity: 0.2,
+    emissiveIntensity: emissiveIntensity,
     side: THREE.DoubleSide,
   });
 
@@ -45,6 +61,10 @@ function createWaterMesh() {
 }
 
 function createFluidScene() {
+  document.getElementById("impulseStrength").value = impulseStrength;
+  document.getElementById("damping").value = damping;
+  document.getElementById("emissiveIntensity").value = emissiveIntensity;
+
   // Initialize Scene
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x111111); // Dark background for contrast
@@ -146,7 +166,7 @@ function updateWaterSimulation() {
 
       // Update velocity and height
       velocities[index] += accelerations[index];
-      velocities[index] *= damping;
+      velocities[index] /= damping;
       heights[index] += velocities[index];
       accelerations[index] = 0;
 
