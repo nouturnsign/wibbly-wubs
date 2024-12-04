@@ -169,17 +169,7 @@ function updateWaterSimulation() {
       velocities[index] /= damping;
       heights[index] += velocities[index];
       accelerations[index] = 0;
-
-      // Constrain to circular container
-      const worldX = (x - gridSize / 2) * cellSize;
-      const worldZ = (z - gridSize / 2) * cellSize;
-      const distance = Math.sqrt(worldX * worldX + worldZ * worldZ);
-
-      if (distance < containerRadius) {
-        positions[3 * index + 1] = heights[index];
-      } else {
-        positions[3 * index + 1] = 0; // Outside the container
-      }
+      positions[3 * index + 1] = heights[index];
     }
   }
 
