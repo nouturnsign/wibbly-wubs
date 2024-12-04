@@ -1,4 +1,5 @@
 import * as bars from "./bars";
+import * as particles from "./particles";
 
 // Load Google Fonts
 const link = document.createElement("link");
@@ -41,6 +42,8 @@ function switchModes(from, to) {
 
       break;
     case "particle":
+      particles.destroyParticlesScene();
+
       break;
     default:
       console.error("unknown mode switching from: ", from);
@@ -59,6 +62,8 @@ function switchModes(from, to) {
 
       break;
     case "particle":
+      particles.createParticlesScene();
+
       break;
     default:
       console.error("unknown mode switching to: ", to);
