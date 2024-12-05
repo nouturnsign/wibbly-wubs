@@ -1,5 +1,6 @@
 import * as bars from "./bars";
 import * as particles from "./particles";
+import * as fluid from "./fluid";
 
 // Load Google Fonts
 const link = document.createElement("link");
@@ -30,6 +31,10 @@ document.getElementById("particleMode").addEventListener("click", () => {
   switchModes(curMode, "particle");
 });
 
+document.getElementById("fluidMode").addEventListener("click", () => {
+  switchModes(curMode, "fluid");
+});
+
 function switchModes(from, to) {
   if (from === to) return false;
 
@@ -44,6 +49,9 @@ function switchModes(from, to) {
     case "particle":
       particles.destroyParticlesScene();
 
+      break;
+    case "fluid":
+      fluid.destroyFluidScene();
       break;
     default:
       console.error("unknown mode switching from: ", from);
@@ -64,6 +72,9 @@ function switchModes(from, to) {
     case "particle":
       particles.createParticlesScene();
 
+      break;
+    case "fluid":
+      fluid.createFluidScene();
       break;
     default:
       console.error("unknown mode switching to: ", to);
