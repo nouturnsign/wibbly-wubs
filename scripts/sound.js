@@ -94,7 +94,7 @@ function createAnalyser() {
 
   analyser = context.createAnalyser();
   analyser.fftSize = FFT_SIZE;
-  analyser.smoothingTimeConstant = 0.95;
+  analyser.smoothingTimeConstant = 0.9;
 
   const bufferLength = analyser.frequencyBinCount;
   freqData = new Uint8Array(bufferLength);
