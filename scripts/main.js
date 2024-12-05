@@ -1,4 +1,5 @@
 import * as bars from "./bars";
+import * as particles from "./particles";
 import * as fluid from "./fluid";
 
 // Load Google Fonts
@@ -46,6 +47,8 @@ function switchModes(from, to) {
 
       break;
     case "particle":
+      particles.destroyParticlesScene();
+
       break;
     case "fluid":
       fluid.destroyFluidScene();
@@ -67,6 +70,8 @@ function switchModes(from, to) {
 
       break;
     case "particle":
+      particles.createParticlesScene();
+
       break;
     case "fluid":
       fluid.createFluidScene();
