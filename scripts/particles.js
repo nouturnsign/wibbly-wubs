@@ -12,14 +12,26 @@ let animationRequest;
 
 const LEFT_END = -25;
 const RIGHT_END = 0;
-const LENGTH = RIGHT_END - LEFT_END;
+const WIDTH = RIGHT_END - LEFT_END;
 const NUM_LINES = 100;
 const LINE_WIDTH = 5;
 const LINE_SEPARATION = 0.5;
 const FIRST_LINE_Z = -20;
 const SIZE = 32;
-const INWARD_SHIFT = (1.5 / SIZE) * LENGTH;
+const INWARD_SHIFT = (1.5 / SIZE) * WIDTH;
 const MAX_HEIGHT = 3;
+
+const NUM_PARTICLES = 1000;
+const PARTICLE_WIDTH = WIDTH * 4;
+const PARTICLE_HEIGHT = 25;
+const MIN_PARTICLE_Y = -5;
+const PARTICLE_DEPTH = LINE_SEPARATION * NUM_LINES + 3;
+const MIN_PARTICLE_Z = FIRST_LINE_Z - 2;
+const MAX_PARTICLE_Z = MIN_PARTICLE_Z + PARTICLE_DEPTH;
+const PARTICLE_X_Y_JITTER_RANGE = 1;
+const HALF_PARTICLE_X_Y_JITTER_RANGE = PARTICLE_X_Y_JITTER_RANGE / 2;
+const PARTICLE_MAX_Z_MOVEMENT = 0.5;
+const PARTICLE_LERP_TIME = 64;
 
 const RED_MIN = 0;
 const RED_MAX = 0 - RED_MIN;
@@ -74,36 +86,36 @@ function createParticlesScene() {
     const lGeometry = new LineGeometry();
 
     const rPositions = [
-      (0 / SIZE) * LENGTH + LEFT_END + INWARD_SHIFT,
+      (0 / SIZE) * WIDTH + LEFT_END + INWARD_SHIFT,
       0,
       i * LINE_SEPARATION + FIRST_LINE_Z,
     ];
     const lPositions = [
-      (0 / SIZE) * LENGTH + RIGHT_END - INWARD_SHIFT,
+      (0 / SIZE) * WIDTH + RIGHT_END - INWARD_SHIFT,
       0,
       i * LINE_SEPARATION + FIRST_LINE_Z,
     ];
 
     for (let j = 0, n = SIZE * 2 - 2; j < n; ++j) {
       rPositions.push(
-        (j / (SIZE * 2)) * LENGTH + LEFT_END + INWARD_SHIFT,
+        (j / (SIZE * 2)) * WIDTH + LEFT_END + INWARD_SHIFT,
         0,
         i * LINE_SEPARATION + FIRST_LINE_Z,
       );
       lPositions.push(
-        (j / (SIZE * 2)) * LENGTH + RIGHT_END - INWARD_SHIFT,
+        (j / (SIZE * 2)) * WIDTH + RIGHT_END - INWARD_SHIFT,
         0,
         i * LINE_SEPARATION + FIRST_LINE_Z,
       );
     }
 
     rPositions.push(
-      ((SIZE - 1) / SIZE) * LENGTH + LEFT_END + INWARD_SHIFT,
+      ((SIZE - 1) / SIZE) * WIDTH + LEFT_END + INWARD_SHIFT,
       0,
       i * LINE_SEPARATION + FIRST_LINE_Z,
     );
     lPositions.push(
-      ((SIZE - 1) / SIZE) * LENGTH + RIGHT_END - INWARD_SHIFT,
+      ((SIZE - 1) / SIZE) * WIDTH + RIGHT_END - INWARD_SHIFT,
       0,
       i * LINE_SEPARATION + FIRST_LINE_Z,
     );
@@ -126,6 +138,47 @@ function createParticlesScene() {
 
   // PARTICLES
 
+  const particleGeometry = new THREE.BufferGeometry();
+  const sprite = new THREE.TextureLoader().load("../textures/circle.png");
+  sprite.colorSpace = THREE.SRGBColorSpace;
+
+  const particleVertices = [];
+
+  for (let i = 0; i < NUM_PARTICLES; ++i) {
+    const x = PARTICLE_WIDTH * Math.random() - PARTICLE_WIDTH / 2;
+    const y = PARTICLE_HEIGHT * Math.random() + MIN_PARTICLE_Y;
+    const z = PARTICLE_DEPTH * Math.random() + MIN_PARTICLE_Z;
+
+    // console.log(x, y, z);
+
+    particleVertices.push(x, y, z);
+  }
+
+  const particlePositions = new THREE.Float32BufferAttribute(
+    particleVertices,
+    3,
+  );
+  const nextParticlePositions = new THREE.Float32BufferAttribute(
+    particleVertices,
+    3,
+  );
+  particleGeometry.setAttribute("position", particlePositions);
+
+  // console.log(particlePositions);
+  // console.log(particleGeometry.getAttribute('position'));
+
+  const particleMaterial = new THREE.PointsMaterial({
+    size: 0.5,
+    sizeAttenuation: true,
+    map: sprite,
+    transparent: true,
+    opacity: 0.6,
+    // color: '#2abce8'
+  });
+
+  const particles = new THREE.Points(particleGeometry, particleMaterial);
+  scene.add(particles);
+
   let counter = 0;
   let timesFrontIndex = 0;
 
@@ -134,22 +187,25 @@ function createParticlesScene() {
 
     const time = getFreqData();
 
-    // ++counter;
+    ++counter;
 
-    if (time && ++counter % 2 == 0) {
+    let z_movement = 0;
+
+    if (time && counter % 2 == 0) {
       // average time array
       let sum = 0;
       for (let i = 0; i < SIZE; ++i) {
         sum += time[i];
       }
       const avg = sum / SIZE;
-      // console.log(avg);
+      z_movement = (Math.min(130, avg) / 130) * PARTICLE_MAX_Z_MOVEMENT;
+      // console.log(offset);
       const offset = -(avg - 127);
 
       if (--timesFrontIndex < 0) timesFrontIndex = NUM_LINES - 1;
 
       for (let i = 0; i < SIZE; ++i) {
-        times[timesFrontIndex][i] = time[i] + offset;
+        times[timesFrontIndex][i] = time[i]; // + offset;
       }
 
       // console.log(timesFrontIndex);
@@ -169,14 +225,14 @@ function createParticlesScene() {
         for (let j = 0; j < SIZE; ++j) {
           rPoints.push(
             new THREE.Vector3(
-              (j / SIZE) * LENGTH + LEFT_END + INWARD_SHIFT,
+              (j / SIZE) * WIDTH + LEFT_END + INWARD_SHIFT,
               ((times[index][j] - 127) / 128) * MAX_HEIGHT,
               i * LINE_SEPARATION + FIRST_LINE_Z,
             ),
           );
           lPoints.push(
             new THREE.Vector3(
-              LENGTH - (j / SIZE) * LENGTH - INWARD_SHIFT,
+              WIDTH - (j / SIZE) * WIDTH - INWARD_SHIFT,
               ((times[index][j] - 127) / 128) * MAX_HEIGHT,
               i * LINE_SEPARATION + FIRST_LINE_Z,
             ),
@@ -215,9 +271,59 @@ function createParticlesScene() {
         // lines[i].scale.set(1, 1, 1);
         // scene.add(lines[i]);
       }
-
-      // PARTICLES
     }
+
+    // PARTICLES
+
+    for (let i = 0; i < NUM_PARTICLES; ++i) {
+      if (particlePositions.getZ(i) > MAX_PARTICLE_Z) {
+        const x = PARTICLE_WIDTH * Math.random() - PARTICLE_WIDTH / 2;
+        const y = PARTICLE_HEIGHT * Math.random() + MIN_PARTICLE_Y;
+        const z = PARTICLE_DEPTH * Math.random() + MIN_PARTICLE_Z;
+
+        particlePositions.setXYZ(i, x, y, z);
+        nextParticlePositions.setXYZ(i, x, y, z);
+      }
+
+      particlePositions.setZ(i, particlePositions.getZ(i) + z_movement);
+
+      if ((counter + i) % PARTICLE_LERP_TIME === 0) {
+        particlePositions.setXY(
+          i,
+          nextParticlePositions.getX(i),
+          nextParticlePositions.getY(i),
+        );
+
+        nextParticlePositions.setXY(
+          i,
+          particlePositions.getX(i) +
+            Math.random() * PARTICLE_X_Y_JITTER_RANGE -
+            HALF_PARTICLE_X_Y_JITTER_RANGE,
+          particlePositions.getY(i) +
+            Math.random() * PARTICLE_X_Y_JITTER_RANGE -
+            HALF_PARTICLE_X_Y_JITTER_RANGE,
+        );
+      } else {
+        const proportion =
+          1 / (PARTICLE_LERP_TIME - ((counter + i) % PARTICLE_LERP_TIME));
+
+        particlePositions.setXY(
+          i,
+          THREE.MathUtils.lerp(
+            particlePositions.getX(i),
+            nextParticlePositions.getX(i),
+            proportion,
+          ),
+          THREE.MathUtils.lerp(
+            particlePositions.getY(i),
+            nextParticlePositions.getY(i),
+            proportion,
+          ),
+        );
+      }
+    }
+
+    particlePositions.needsUpdate = true;
 
     // controls.update();
     renderer.render(scene, camera);
