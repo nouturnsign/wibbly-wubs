@@ -4,7 +4,7 @@ import { Line2 } from "three/addons/lines/Line2.js";
 import { LineGeometry } from "three/addons/lines/LineGeometry.js";
 import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 
-import { getFreqData, getTimeData } from "./sound";
+import { getFreqData, getTimeData, FREQ_BINS, TIME_BINS } from "./sound";
 
 let scene;
 let renderer;
@@ -17,7 +17,7 @@ const NUM_LINES = 100;
 const LINE_WIDTH = 5;
 const LINE_SEPARATION = 0.5;
 const FIRST_LINE_Z = -20;
-const SIZE = 32;
+const SIZE = FREQ_BINS;
 const INWARD_SHIFT = (1.5 / SIZE) * WIDTH;
 const MAX_HEIGHT = 3;
 
@@ -32,6 +32,15 @@ const PARTICLE_X_Y_JITTER_RANGE = 1;
 const HALF_PARTICLE_X_Y_JITTER_RANGE = PARTICLE_X_Y_JITTER_RANGE / 2;
 const PARTICLE_MAX_Z_MOVEMENT = 0.5;
 const PARTICLE_LERP_TIME = 64;
+
+const OSCILLO_LINE_WIDTH = 3;
+const OSCILLO_SIZE = TIME_BINS;
+const OSCILLO_MIN_X = -40;
+const OSCILLO_MAX_X = 40;
+const OSCILLO_WIDTH = OSCILLO_MAX_X - OSCILLO_MIN_X;
+const OSCILLO_Y = 8;
+const OSCILLO_Z = 8;
+const OSCILLO_MAX_HEIGHT = 8;
 
 const RED_MIN = 0;
 const RED_MAX = 0 - RED_MIN;
@@ -68,7 +77,7 @@ function createParticlesScene() {
 
   let linesRight = [];
   let linesLeft = [];
-  let times = [];
+  let freqs = [];
 
   for (let i = 0; i < NUM_LINES; ++i) {
     const proportion = 1 - i / NUM_LINES;
@@ -133,7 +142,7 @@ function createParticlesScene() {
     linesLeft[i].scale.set(1, 1, 1);
     scene.add(linesLeft[i]);
 
-    times.push(new Uint8Array(Array(SIZE).fill(127)));
+    freqs.push(new Uint8Array(Array(SIZE).fill(127)));
   }
 
   // PARTICLES
@@ -179,33 +188,56 @@ function createParticlesScene() {
   const particles = new THREE.Points(particleGeometry, particleMaterial);
   scene.add(particles);
 
+  // OSCILLOSCOPE
+
+  const oscilloMaterial = new LineMaterial({
+    color: 0xb0b0b0,
+    linewidth: OSCILLO_LINE_WIDTH,
+  });
+  const oscilloGeometry = new LineGeometry();
+
+  const oscilloPositions = [];
+  for (let i = 0; i < OSCILLO_SIZE; ++i) {
+    oscilloPositions.push(
+      (i / OSCILLO_SIZE) * OSCILLO_WIDTH + OSCILLO_MIN_X,
+      OSCILLO_Y + OSCILLO_MAX_HEIGHT / 2,
+      OSCILLO_Z,
+    );
+  }
+  oscilloGeometry.setPositions(oscilloPositions);
+
+  const oscilloscope = new Line2(oscilloGeometry, oscilloMaterial);
+  oscilloscope.computeLineDistances();
+  oscilloscope.scale.set(1, 1, 1);
+  scene.add(oscilloscope);
+
   let counter = 0;
-  let timesFrontIndex = 0;
+  let freqsFrontIndex = 0;
 
   function animate() {
     animationRequest = requestAnimationFrame(animate);
 
-    const time = getFreqData();
+    const freq = getFreqData();
 
     ++counter;
 
     let z_movement = 0;
 
-    if (time && counter % 2 == 0) {
-      // average time array
+    if (freq && counter % 2 == 0) {
+      // average freq array
       let sum = 0;
       for (let i = 0; i < SIZE; ++i) {
-        sum += time[i];
+        sum += freq[i];
       }
       const avg = sum / SIZE;
       z_movement = (Math.min(130, avg) / 130) * PARTICLE_MAX_Z_MOVEMENT;
       // console.log(offset);
       const offset = -(avg - 127);
 
-      if (--timesFrontIndex < 0) timesFrontIndex = NUM_LINES - 1;
+      if (--freqsFrontIndex < 0) freqsFrontIndex = NUM_LINES - 1;
 
       for (let i = 0; i < SIZE; ++i) {
-        times[timesFrontIndex][i] = time[i]; // + offset;
+        freqs[freqsFrontIndex][i] = freq[i]; // + offset;
       }
 
       // console.log(timesFrontIndex);
@@ -214,26 +246,24 @@ function createParticlesScene() {
 
       // let i = counter % NUM_LINES;
       for (let i = 0; i < NUM_LINES; ++i) {
-        const index = (timesFrontIndex + i) % NUM_LINES;
+        const index = (freqsFrontIndex + i) % NUM_LINES;
         // const index = timesFrontIndex;
 
         let rPoints = [];
         let lPoints = [];
 
-        // TODO: change constant dynamically (FFT_SIZE)
-        // ...and add as constants all the other 'magic' numbers here
         for (let j = 0; j < SIZE; ++j) {
           rPoints.push(
             new THREE.Vector3(
               (j / SIZE) * WIDTH + LEFT_END + INWARD_SHIFT,
-              ((times[index][j] - 127) / 128) * MAX_HEIGHT,
+              ((freqs[index][j] - 127) / 128) * MAX_HEIGHT,
               i * LINE_SEPARATION + FIRST_LINE_Z,
             ),
           );
           lPoints.push(
             new THREE.Vector3(
               WIDTH - (j / SIZE) * WIDTH - INWARD_SHIFT,
-              ((times[index][j] - 127) / 128) * MAX_HEIGHT,
+              ((freqs[index][j] - 127) / 128) * MAX_HEIGHT,
               i * LINE_SEPARATION + FIRST_LINE_Z,
             ),
           );
@@ -324,6 +354,23 @@ function createParticlesScene() {
     }
 
     particlePositions.needsUpdate = true;
+
+    // OSCILLOSCOPE
+
+    const time = getTimeData();
+
+    if (time) {
+      for (let i = 0; i < OSCILLO_SIZE; ++i) {
+        oscilloPositions[i * 3 + 1] =
+          (time[i] / 255) * OSCILLO_MAX_HEIGHT + OSCILLO_Y;
+      }
+
+      oscilloGeometry.setPositions(oscilloPositions);
+      oscilloGeometry.getAttribute("position").needsUpdate = true;
+      oscilloscope.computeLineDistances();
+      oscilloGeometry.computeBoundingBox();
+      oscilloGeometry.computeBoundingSphere();
+    }
 
     // controls.update();
     renderer.render(scene, camera);
