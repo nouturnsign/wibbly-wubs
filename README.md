@@ -3,6 +3,10 @@
 3D music visualizer. _The Psychedelic Monkeys'_ final project for COM SCI 174A
 Fall 2024.
 
+|          bars          |          particles          |          fluid          |
+| :--------------------: | :-------------------------: | :---------------------: |
+| ![](./images/bars.jpg) | ![](./images/particles.jpg) | ![](./images/fluid.jpg) |
+
 ## Setup
 
 We are using `nvm` to manage `node` versions.
