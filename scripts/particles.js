@@ -6,10 +6,6 @@ import { LineMaterial } from "three/addons/lines/LineMaterial.js";
 
 import { getFreqData, getTimeData, FREQ_BINS, TIME_BINS } from "./sound";
 
-let scene;
-let renderer;
-let animationRequest;
-
 const LEFT_END = -25;
 const RIGHT_END = 0;
 const WIDTH = RIGHT_END - LEFT_END;
@@ -49,6 +45,19 @@ const GREEN_MAX = 175 - GREEN_MIN;
 const BLUE_MIN = 0;
 const BLUE_MAX = 250 - BLUE_MIN;
 
+const RED_TOP = 255 - RED_MAX;
+const GREEN_TOP = 255 - GREEN_MAX;
+const BLUE_TOP = 255 - BLUE_MAX;
+
+let scene;
+let renderer;
+let animationRequest;
+
+let rainbow = false;
+document.getElementById("rainbow").addEventListener("input", () => {
+  rainbow = !rainbow;
+});
+
 function createParticlesScene() {
   scene = new THREE.Scene();
   renderer = new THREE.WebGLRenderer();
@@ -69,9 +78,9 @@ function createParticlesScene() {
   camera.lookAt(0, 0, -6);
 
   // Add OrbitControls to increase user interaction
-  // const controls = new OrbitControls(camera, renderer.domElement);
-  // controls.enableDamping = true;
-  // controls.dampingFactor = 0.05;
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
 
   // LINES
 
@@ -85,10 +94,16 @@ function createParticlesScene() {
     const green = Math.floor(proportion * GREEN_MAX + GREEN_MIN);
     const blue = Math.floor(proportion * BLUE_MAX + BLUE_MIN);
 
+    const fracRed = red / 255;
+    const fracBlue = green / 255;
+    const fracGreen = blue / 255;
+
     const lineMaterial = new LineMaterial({
-      color: new THREE.Color(`rgb(${red}, ${green}, ${blue})`).getHex(),
+      // color: new THREE.Color(`rgb(${red}, ${green}, ${blue})`).getHex(),
+      color: 0xffffff,
       linewidth: LINE_WIDTH,
-      // vertexColors: true,
+      vertexColors: true,
+      // alphaToCoverage: true,
     });
 
     const rGeometry = new LineGeometry();
@@ -104,6 +119,7 @@ function createParticlesScene() {
       0,
       i * LINE_SEPARATION + FIRST_LINE_Z,
     ];
+    const colors = [fracRed, fracGreen, fracBlue, fracRed, fracGreen, fracBlue];
 
     for (let j = 0, n = SIZE * 2 - 2; j < n; ++j) {
       rPositions.push(
@@ -116,6 +132,7 @@ function createParticlesScene() {
         0,
         i * LINE_SEPARATION + FIRST_LINE_Z,
       );
+      colors.push(fracRed, fracBlue, fracGreen);
     }
 
     rPositions.push(
@@ -131,6 +148,8 @@ function createParticlesScene() {
 
     rGeometry.setPositions(rPositions);
     lGeometry.setPositions(lPositions);
+    rGeometry.setColors(colors);
+    lGeometry.setColors(colors);
 
     linesRight.push(new Line2(rGeometry, lineMaterial));
     linesRight[i].computeLineDistances();
@@ -249,23 +268,41 @@ function createParticlesScene() {
         const index = (freqsFrontIndex + i) % NUM_LINES;
         // const index = timesFrontIndex;
 
-        let rPoints = [];
-        let lPoints = [];
+        const proportion = 1 - i / NUM_LINES;
+
+        const rPoints = [];
+        const lPoints = [];
+        const colors = [];
 
         for (let j = 0; j < SIZE; ++j) {
+          const freqProp = (freqs[index][j] - 127) / 128;
+          const heightProportion = (freqProp + 1) / 2;
+
           rPoints.push(
             new THREE.Vector3(
               (j / SIZE) * WIDTH + LEFT_END + INWARD_SHIFT,
-              ((freqs[index][j] - 127) / 128) * MAX_HEIGHT,
+              freqProp * MAX_HEIGHT,
               i * LINE_SEPARATION + FIRST_LINE_Z,
             ),
           );
           lPoints.push(
             new THREE.Vector3(
               WIDTH - (j / SIZE) * WIDTH - INWARD_SHIFT,
-              ((freqs[index][j] - 127) / 128) * MAX_HEIGHT,
+              freqProp * MAX_HEIGHT,
               i * LINE_SEPARATION + FIRST_LINE_Z,
             ),
+          );
+          colors.push(
+            Math.floor(
+              proportion * (heightProportion * RED_TOP + RED_MAX) + RED_MIN,
+            ) / 255,
+            Math.floor(
+              proportion * (heightProportion * GREEN_TOP + GREEN_MAX) +
+                GREEN_MIN,
+            ) / 255,
+            Math.floor(
+              proportion * (heightProportion * BLUE_TOP + BLUE_MAX) + BLUE_MIN,
+            ) / 255,
           );
         }
 
@@ -288,6 +325,16 @@ function createParticlesScene() {
         linesLeft[i].geometry.setPositions(rCurvedPoints);
         linesRight[i].geometry.getAttribute("position").needsUpdate = true;
         linesLeft[i].geometry.getAttribute("position").needsUpdate = true;
+
+        // linesRight[i].geometry.setColors(colors);
+        // linesLeft[i].geometry.setColors(colors);
+        linesRight[i].geometry.attributes.instanceColorStart.array.set(colors);
+        linesRight[i].geometry.attributes.instanceColorStart.needsUpdate = true;
+        linesLeft[i].geometry.attributes.instanceColorEnd.array.set(colors);
+        linesLeft[i].geometry.attributes.instanceColorEnd.needsUpdate = true;
+        // console.log(linesRight[i].geometry);
+        // linesRight[i].geometry.colorsNeedUpdate = true;
+        // linesLeft[i].geometry.colorsNeedUpdate = true;
 
         // scene.remove(lines[i]);
         // delete lines[i];
@@ -372,7 +419,7 @@ function createParticlesScene() {
       oscilloGeometry.computeBoundingSphere();
     }
 
-    // controls.update();
+    controls.update();
     renderer.render(scene, camera);
   }
 
