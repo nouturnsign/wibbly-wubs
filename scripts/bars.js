@@ -61,7 +61,7 @@ function createBarsScene() {
   spotlight1.lookAt(0, 0, 0);
   spotlight1.castShadow = true;
   scene.add(spotlight1);
-  
+
   const spotlight2 = new THREE.SpotLight(0xffffff, 100);
   spotlight2.position.set(-8, 25, -8);
   spotlight2.lookAt(0, 0, 0);
@@ -88,7 +88,7 @@ function createBarsScene() {
 
   // Load the turntable texture
   const textureLoader = new THREE.TextureLoader();
-  const platformTexture = textureLoader.load("./TransparentCropped.png");
+  const platformTexture = textureLoader.load("./textures/turntable.png");
 
   // Create the platform geometry and material
   const platformSize = radius * 4;
