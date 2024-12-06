@@ -38,7 +38,7 @@ const OSCILLO_SIZE = TIME_BINS;
 const OSCILLO_MIN_X = -40;
 const OSCILLO_MAX_X = 40;
 const OSCILLO_WIDTH = OSCILLO_MAX_X - OSCILLO_MIN_X;
-const OSCILLO_Y = 8;
+const OSCILLO_Y = 6;
 const OSCILLO_Z = 8;
 const OSCILLO_MAX_HEIGHT = 8;
 
@@ -65,7 +65,7 @@ function createParticlesScene() {
     0.1, // near
     100, // far
   );
-  camera.position.set(0, 10, FIRST_LINE_Z - 7);
+  camera.position.set(0, 10, FIRST_LINE_Z - 5);
   camera.lookAt(0, 0, -6);
 
   // Add OrbitControls to increase user interaction
